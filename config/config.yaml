@@ -1,0 +1,36 @@
+project:
+
+  input_folder: input
+
+  output_folder: output
+
+  temp_folder: temp
+
+
+tts:
+
+  engine: f5
+
+  model: F5TTS_v1_Base
+
+  speed: 1.0
+
+
+chunk:
+
+  max_words: 80
+
+
+quality:
+
+  max_retry: 3
+
+  min_similarity: 0.85
+
+
+audio:
+
+  format: mp3
+
+  bitrate: 192k
+

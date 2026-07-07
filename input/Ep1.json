@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "fileName": "Episode1.srt",
+    "jobId": "c386ca87-721b-4bbe-80aa-596f9f869366",
+    "totalSections": 3,
+    "completedSections": 3,
+    "generatedAt": "2026-07-06T09:25:54.693Z"
+  },
+  "sections": [
+    {
+      "index": 1,
+      "english": "Hello everyone, and welcome to the Network Security course. Today we will learn how to scan a network using Nmap. Before starting, open your Terminal. Type the following command exactly as shown. nmap -sV 192.168.1.1 Press Enter to start the scan. Nmap begins sending packets to the target host. The scan may take a few seconds. Now let's review the results. Notice the list of open ports. Port 22 is running SSH. Port 80 is running HTTP. Port 443 is running HTTPS. Always verify your findings. Use multiple scanning techniques. Security requires careful analysis. Save your scan reports. Document every important finding. Keep your evidence organized. Never scan systems without permission. Now let's detect the operating system. Use the -O option.",
+      "persian": "سلام به همه، و به دوره Network Security خوش آمدید. امروز یاد می‌گیریم که چطور با استفاده از Nmap یک شبکه را اسکن کنیم. قبل از شروع، Terminal خود را باز کنید. دستور زیر را دقیقاً همان‌طور که نشان داده شده وارد کنید. nmap -sV 192.168.1.1 برای شروع اسکن، Enter را بزنید. Nmap شروع می‌کند به ارسال packetها به host هدف. این اسکن ممکن است چند ثانیه طول بکشد. حالا بیایید نتایج را بررسی کنیم. به فهرست portهای باز توجه کنید. Port 22 در حال اجرای SSH است. Port 80 در حال اجرای HTTP است. Port 443 در حال اجرای HTTPS است. همیشه یافته‌های خود را بررسی و تأیید کنید. از چندین روش اسکن استفاده کنید. امنیت به تحلیل دقیق نیاز دارد. گزارش‌های اسکن خود را ذخیره کنید. هر یافته مهم را مستندسازی کنید. شواهد خود را منظم نگه دارید. هیچ‌وقت بدون مجوز سیستم‌ها را اسکن نکنید. حالا بیایید سیستم‌عامل را شناسایی کنیم. از گزینه -O استفاده کنید.",
+      "audioUrl": "https://bty-reactus-resource-prod.s3.us-east-1.amazonaws.com/reactus/llm_server/beb24ce8943647d287e1f4ae80a99198/uploads/VxYv_b2030fbb-1054-9e01-8477-5d36fbe0790d.wav"
+    },
+    {
+      "index": 2,
+      "english": "Run the command again. Wait until the scan finishes. Review the detected operating system. The detection is not always accurate. Cross-check the information with another tool. Wireshark can capture network traffic. Open Wireshark and start a capture. Generate some network traffic. Stop the capture after one minute. Apply a display filter. http Inspect the HTTP requests. Notice the source and destination IP addresses. Now let's use Burp Suite. Configure your browser proxy. Intercept the request. Forward the request to the server. Observe the response carefully. Now open Metasploit. Search for an exploit. Select the exploit module. Configure the target IP.",
+      "persian": "دستور را دوباره اجرا کنید. صبر کنید تا اسکن کامل شود. سیستم‌عامل شناسایی‌شده را بررسی کنید. این شناسایی همیشه دقیق نیست. اطلاعات را با یک ابزار دیگر هم تطبیق دهید و بررسی کنید. Wireshark می‌تواند ترافیک شبکه را capture کند. Wireshark را باز کنید و capture را شروع کنید. مقداری ترافیک شبکه ایجاد کنید. بعد از یک دقیقه capture را متوقف کنید. یک display filter اعمال کنید. http درخواست‌های HTTP را بررسی کنید. به آدرس‌های IP مبدأ و مقصد توجه کنید. حالا برویم سراغ Burp Suite. proxy مرورگر خود را تنظیم کنید. درخواست را intercept کنید. درخواست را به سرور forward کنید. پاسخ را با دقت بررسی کنید. حالا Metasploit را باز کنید. یک exploit جست‌وجو کنید. ماژول exploit را انتخاب کنید. IP هدف را تنظیم کنید.",
+      "audioUrl": "https://bty-reactus-resource-prod.s3.us-east-1.amazonaws.com/reactus/llm_server/beb24ce8943647d287e1f4ae80a99198/uploads/gHQm_413c204b-f8f0-94c3-b7d9-f0129f4e70c7.wav"
+    },
+    {
+      "index": 3,
+      "english": "Set the payload. Run the exploit. If successful, you should receive a shell. Always work in an authorized lab. Unauthorized testing may be illegal. Practice regularly to improve your skills. Cyber Security changes every day. Keep learning new techniques. Stay updated with the latest tools. Read official documentation whenever possible. Visit https://nmap.org for more information. Python automation can save a lot of time. PowerShell is useful on Windows systems. Bash scripting is common on Linux. Thank you for watching. See you in the next lesson.",
+      "persian": "payload را تنظیم کنید. exploit را اجرا کنید. اگر همه‌چیز موفقیت‌آمیز باشد، باید یک shell دریافت کنید. همیشه در یک lab مجاز کار کنید. تست غیرمجاز ممکن است غیرقانونی باشد. برای بهبود مهارت‌هایتان، به‌صورت منظم تمرین کنید. Cyber Security هر روز در حال تغییر است. به یادگیری تکنیک‌های جدید ادامه دهید. با جدیدترین tools به‌روز بمانید. هر زمان ممکن بود، documentation رسمی را مطالعه کنید. برای اطلاعات بیشتر به https://nmap.org مراجعه کنید. خودکارسازی با Python می‌تواند زمان زیادی را ذخیره کند. PowerShell در سیستم‌های Windows بسیار کاربردی است. Bash scripting در Linux رایج است. از همراهی شما متشکرم. در درس بعدی می‌بینمتان.",
+      "audioUrl": "https://bty-reactus-resource-prod.s3.us-east-1.amazonaws.com/reactus/llm_server/beb24ce8943647d287e1f4ae80a99198/uploads/4f5Y_9734427c-a406-9fbe-a009-847948e5438c.wav"
+    }
+  ]
+}

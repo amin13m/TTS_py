@@ -1,0 +1,30 @@
+default: male01
+
+voices:
+
+  male01:
+
+    ref_audio: voices/male01.wav
+
+    ref_text: >
+      سلام. این فایل نمونه صدای گوینده مرد شماره یک است.
+
+    speed: 0.95
+
+  male02:
+
+    ref_audio: voices/male02.wav
+
+    ref_text: >
+      سلام. این فایل نمونه صدای گوینده مرد شماره دو است.
+
+    speed: 1.0
+
+  female01:
+
+    ref_audio: voices/female01.wav
+
+    ref_text: >
+      سلام. این فایل نمونه صدای گوینده زن شماره یک است.
+
+    speed: 0.95
