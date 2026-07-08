@@ -1,28 +1,58 @@
+import time
+
+
 from src.utils.config import Config
 from src.utils.logger import create_logger
 
-from src.core.queue import JsonQueue
-from src.core.dubber import Dubber
-from src.core.checkpoint import Checkpoint
 
-from src.engine.f5_engine import F5Engine
+from src.engine.engine_factory import EngineFactory
+
+
+from src.models.voice import Voice
+
 
 from src.audio.normalizer import Normalizer
 
+
 from src.quality.quality_manager import QualityManager
 
+
+from src.core.queue import JsonQueue
+from src.core.checkpoint import Checkpoint
 from src.core.section_processor import SectionProcessor
+from src.core.dubber import Dubber
+
+
+
+
+
+def load_voice(config):
+
+
+    data = config.active_voice()
+
+
+    return Voice.from_dict(
+
+        data
+
+    )
+
+
+
+
 
 
 
 def main():
 
 
-    logger=create_logger()
+    logger = create_logger()
 
 
 
-    config=Config()
+    config = Config()
+
 
     config.load(
 
@@ -32,148 +62,279 @@ def main():
 
 
 
-    logger.info(
-
-        "Loading F5-TTS"
-
-    )
-
-
-    engine=F5Engine()
-
-    engine.load()
-    
-    voice = config.active_voice()
-    
-    engine.set_voice(
-        voice["ref_audio"],
-        voice["ref_text"]
-    )
+    engine = None
 
 
 
-    logger.info(
-
-        "Loading tools"
-
-    )
+    try:
 
 
+        logger.info(
 
-    normalizer=Normalizer(
-
-        "config/dictionary.json"
-
-    )
-
-
-    quality=QualityManager(
-
-        minimum_similarity=
-
-        config["quality"]["min_similarity"]
-
-    )
-
-
-
-    processor=SectionProcessor(
-
-        engine,
-
-        normalizer,
-
-        quality,
-
-        config.data,
-
-        logger
-
-    )
-
-
-    checkpoint=Checkpoint()
-
-
-
-    dubber=Dubber(
-
-        processor,
-
-        checkpoint,
-
-        logger
-
-    )
-
-
-
-    queue=JsonQueue(
-
-        config["project"]["input_folder"]
-
-    )
-
-
-
-    files=queue.get_files()
-
-
-
-    if not files:
-
-        logger.warning(
-
-            "No input JSON found"
-
-        )
-
-        return
-
-
-
-    for file in files:
-
-
-        episode=queue.load_episode(
-
-            file
-
-        )
-
-
-        dubber.process_episode(
-
-            episode
+            "Loading TTS Engine..."
 
         )
 
 
 
-    engine.unload()
+        engine = EngineFactory.create(
+
+            config
+
+        )
 
 
 
-import time
+        engine.load()
+
+
+
+        voice = load_voice(
+
+            config
+
+        )
+
+
+
+        engine.set_voice(
+
+            voice
+
+        )
+
+
+
+        logger.info(
+
+            f"Engine : {engine.name}"
+
+        )
+
+
+
+        logger.info(
+
+            f"Voice : {voice.name}"
+
+        )
+
+
+
+        normalizer = Normalizer(
+
+            "config/dictionary.json"
+
+        )
+
+
+
+        quality = QualityManager(
+
+            minimum_similarity=
+
+            config["quality"]["min_similarity"],
+
+
+            config=config.data
+
+        )
+
+
+
+        processor = SectionProcessor(
+
+            engine,
+
+            normalizer,
+
+            quality,
+
+            config.data,
+
+            logger
+
+        )
+
+
+
+        checkpoint = Checkpoint(
+
+            config["project"].get(
+
+                "checkpoint_folder",
+
+                "checkpoint"
+
+            )
+
+        )
+
+
+
+        dubber = Dubber(
+        
+            processor,
+        
+            checkpoint,
+        
+            logger,
+        
+            output_folder=config["project"]["output_folder"],
+        
+            audio_format=config["audio"]["format"]
+        
+        )
+
+
+
+        queue = JsonQueue(
+
+            config["project"]["input_folder"]
+
+        )
+
+
+
+        files = queue.get_files()
+
+
+
+        if not files:
+
+
+            logger.warning(
+
+                "No input JSON found."
+
+            )
+
+
+            return
+
+
+
+
+
+        for file in files:
+
+
+
+            logger.info(
+
+                f"Processing file: {file.name}"
+
+            )
+
+
+
+            episode = queue.load_episode(
+
+                file
+
+            )
+
+
+
+            dubber.process_episode(
+
+                episode
+
+            )
+
+
+
+
+
+    finally:
+
+
+        if engine is not None:
+
+
+            logger.info(
+
+                "Unloading TTS Engine..."
+
+            )
+
+
+            engine.unload()
+
+
+
+
+
 
 
 if __name__ == "__main__":
 
-    start_time = time.perf_counter()
+
+    start = time.perf_counter()
+
+
 
     try:
+
+
         main()
 
+
+
+    except Exception as e:
+
+
+        print()
+
+        print(
+
+            "ERROR:"
+
+        )
+
+        print(e)
+
+
+
+        raise
+
+
+
     finally:
-        end_time = time.perf_counter()
 
-        elapsed = end_time - start_time
 
-        hours = int(elapsed // 3600)
-        minutes = int((elapsed % 3600) // 60)
-        seconds = elapsed % 60
+        elapsed = time.perf_counter() - start
 
-        print("\n" + "=" * 60)
+
+
+        h = int(
+
+            elapsed // 3600
+
+        )
+
+
+        m = int(
+
+            (elapsed % 3600) // 60
+
+        )
+
+
+        s = elapsed % 60
+
+
+
+        print()
+
+        print("=" * 60)
+
         print("Execution Time")
-        print(f"{hours:02}:{minutes:02}:{seconds:06.3f}")
+
+        print(
+
+            f"{h:02}:{m:02}:{s:06.3f}"
+
+        )
+
         print("=" * 60)

@@ -1,16 +1,29 @@
-from pydub import AudioSegment
+from pathlib import Path
+
+import torchaudio
 
 
 class AudioInfo:
 
     @staticmethod
+    def duration(audio_file):
 
-    def duration(
+        audio_file = Path(audio_file)
 
-            file
+        if not audio_file.exists():
 
-    ):
+            raise FileNotFoundError(audio_file)
 
-        audio=AudioSegment.from_file(file)
+        waveform, sample_rate = torchaudio.load(
 
-        return len(audio)/1000
+            str(audio_file)
+
+        )
+
+        return (
+
+            waveform.shape[1]
+
+            / sample_rate
+
+        )

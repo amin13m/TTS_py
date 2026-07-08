@@ -1,6 +1,7 @@
 import json
-
 from pathlib import Path
+from datetime import datetime
+
 
 
 
@@ -15,9 +16,14 @@ class Checkpoint:
 
     ):
 
-        self.folder=Path(folder)
+
+        self.folder = Path(folder)
+
+
 
         self.folder.mkdir(
+
+            parents=True,
 
             exist_ok=True
 
@@ -25,35 +31,72 @@ class Checkpoint:
 
 
 
-    def file(self,episode):
 
-        return self.folder / (
 
-            episode + ".json"
+
+
+    def file(
+
+            self,
+
+            episode
+
+    ):
+
+
+        return self.folder / f"{episode}.json"
+
+
+
+
+
+
+
+    def load(
+
+            self,
+
+            episode
+
+    ):
+
+
+        path = self.file(
+
+            episode
 
         )
 
 
-
-    def load(self,episode):
-
-        f=self.file(episode)
-
-
-        if not f.exists():
+        if not path.exists():
 
             return {}
 
 
-        return json.loads(
 
-            f.read_text(
+        try:
 
-                encoding="utf8"
+
+            return json.loads(
+
+                path.read_text(
+
+                    encoding="utf-8"
+
+                )
 
             )
 
-        )
+
+
+        except Exception:
+
+
+            return {}
+
+
+
+
 
 
 
@@ -67,11 +110,28 @@ class Checkpoint:
 
     ):
 
-        self.file(
+
+
+        path = self.file(
 
             episode
 
-        ).write_text(
+        )
+
+
+        data["updated"] = datetime.now().isoformat()
+
+
+
+        temp = path.with_suffix(
+
+            ".tmp"
+
+        )
+
+
+
+        temp.write_text(
 
             json.dumps(
 
@@ -83,9 +143,22 @@ class Checkpoint:
 
             ),
 
-            encoding="utf8"
+            encoding="utf-8"
 
         )
+
+
+
+        temp.replace(
+
+            path
+
+        )
+
+
+
+
+
 
 
 
@@ -95,18 +168,22 @@ class Checkpoint:
 
             episode,
 
-            section
+            section,
+
+            output=None
 
     ):
 
-        data=self.load(
+
+        data = self.load(
 
             episode
 
         )
 
 
-        done=data.get(
+
+        completed = data.get(
 
             "completed",
 
@@ -115,13 +192,107 @@ class Checkpoint:
         )
 
 
-        if section not in done:
 
-            done.append(section)
-
+        if section not in completed:
 
 
-        data["completed"]=done
+            completed.append(
+
+                section
+
+            )
+
+
+
+        completed.sort()
+
+
+
+        data["completed"] = completed
+
+
+
+        if output:
+
+
+            outputs = data.get(
+
+                "outputs",
+
+                {}
+
+            )
+
+
+            outputs[str(section)] = output
+
+
+            data["outputs"] = outputs
+
+
+
+        self.save(
+
+            episode,
+
+            data
+
+        )
+
+
+
+
+
+
+
+    def mark_failed(
+
+            self,
+
+            episode,
+
+            section,
+
+            reason
+
+    ):
+
+
+
+        data = self.load(
+
+            episode
+
+        )
+
+
+
+        failed = data.get(
+
+            "failed",
+
+            {}
+
+        )
+
+
+
+        failed[str(section)] = {
+
+
+            "reason": reason,
+
+
+            "time":
+
+            datetime.now().isoformat()
+
+        }
+
+
+
+        data["failed"] = failed
+
 
 
         self.save(

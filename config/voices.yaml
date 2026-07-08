@@ -1,30 +1,113 @@
-default: male01
+default: male1
 
 voices:
 
-  male01:
+  male1:
 
-    ref_audio: voices/male01.wav
+    name: Male Voice 1
 
-    ref_text: >
-      سلام. این فایل نمونه صدای گوینده مرد شماره یک است.
+    language: fa
 
-    speed: 0.95
-
-  male02:
-
-    ref_audio: voices/male02.wav
+    ref_audio: voices/male1.wav
 
     ref_text: >
-      سلام. این فایل نمونه صدای گوینده مرد شماره دو است.
+      سلام.
+      این فایل نمونه صدای گوینده مرد شماره یک است.
 
     speed: 1.0
 
-  female01:
+    temperature: 0.75
 
-    ref_audio: voices/female01.wav
+    length_penalty: 1.0
+
+    repetition_penalty: 2.0
+
+    top_k: 50
+
+    top_p: 0.85
+
+    enable_text_splitting: true
+
+
+
+  male2:
+
+    name: Male Voice 2
+
+    language: fa
+
+    ref_audio: voices/male2.wav
 
     ref_text: >
-      سلام. این فایل نمونه صدای گوینده زن شماره یک است.
+      سلام.
+      این فایل نمونه صدای گوینده مرد شماره دو است.
 
-    speed: 0.95
+    speed: 1.0
+
+    temperature: 0.75
+
+    length_penalty: 1.0
+
+    repetition_penalty: 2.0
+
+    top_k: 50
+
+    top_p: 0.85
+
+    enable_text_splitting: true
+
+
+
+  female1:
+
+    name: Female Voice 1
+
+    language: fa
+
+    ref_audio: voices/female1.wav
+
+    ref_text: >
+      سلام.
+      این فایل نمونه صدای گوینده زن شماره یک است.
+
+    speed: 1.0
+
+    temperature: 0.75
+
+    length_penalty: 1.0
+
+    repetition_penalty: 2.0
+
+    top_k: 50
+
+    top_p: 0.85
+
+    enable_text_splitting: true
+
+
+
+  female2:
+
+    name: Female Voice 2
+
+    language: fa
+
+    ref_audio: voices/female2.wav
+
+    ref_text: >
+      سلام.
+      این فایل نمونه صدای گوینده زن شماره دو است.
+
+    speed: 1.0
+
+    temperature: 0.75
+
+    length_penalty: 1.0
+
+    repetition_penalty: 2.0
+
+    top_k: 50
+
+    top_p: 0.85
+
+    enable_text_splitting: true

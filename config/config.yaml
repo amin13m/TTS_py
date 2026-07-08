@@ -6,14 +6,50 @@ project:
 
   temp_folder: temp
 
+  checkpoint_folder: checkpoint
+
+
 
 tts:
 
-  engine: f5
+  engine: xtts
 
-  model: F5TTS_v1_Base
+  device: cuda
+
+  sample_rate: 24000
 
   speed: 1.0
+
+  language: fa
+
+
+  models:
+
+    f5:
+
+      model: F5TTS_v1_Base
+
+
+    xtts:
+
+      model_path: models/xtts_v2
+
+
+
+
+
+whisper:
+
+  enabled: true
+
+  model: small
+
+  language: fa
+
+  device: cuda
+
+
+
 
 
 chunk:
@@ -21,16 +57,21 @@ chunk:
   max_words: 80
 
 
+
+
+
 quality:
 
   max_retry: 3
 
-  min_similarity: 0.85
+  min_similarity: 85
+
+
+
 
 
 audio:
 
-  format: mp3
+  format: wav
 
   bitrate: 192k
-

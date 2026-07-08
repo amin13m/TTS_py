@@ -1,0 +1,11 @@
+{
+  "completed": [
+    1,
+    2
+  ],
+  "outputs": {
+    "1": "D:\\Projects\\tts_py\\output\\Ep1_Dub_0001.wav",
+    "2": "D:\\Projects\\tts_py\\output\\Ep1_Dub_0002.wav"
+  },
+  "updated": "2026-07-08T13:01:05.532729"
+}

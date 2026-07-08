@@ -2,76 +2,177 @@ from pathlib import Path
 import logging
 
 
-def create_logger():
+def create_logger(
 
-    Path("logs").mkdir(exist_ok=True)
+        log_dir="logs",
 
-    logger = logging.getLogger("tts")
+        name="tts"
 
-    logger.setLevel(logging.INFO)
+):
+
+
+    log_path = Path(log_dir)
+
+
+    log_path.mkdir(
+
+        parents=True,
+
+        exist_ok=True
+
+    )
+
+
+    logger = logging.getLogger(name)
+
+
+    logger.setLevel(
+
+        logging.INFO
+
+    )
+
+
+    logger.propagate = False
+
+
+
+    # جلوگیری از تکرار Handler
+
+    if logger.handlers:
+
+        return logger
+
+
 
     formatter = logging.Formatter(
 
-        "%(asctime)s %(levelname)s %(message)s"
+        "%(asctime)s | %(levelname)s | %(message)s"
 
     )
 
-    fh = logging.FileHandler(
 
-        "logs/project.log",
 
-        encoding="utf8"
+    file_handler = logging.FileHandler(
+
+        log_path / "project.log",
+
+        encoding="utf-8"
 
     )
 
-    fh.setFormatter(formatter)
 
-    logger.addHandler(fh)
+    file_handler.setFormatter(
 
-    logger.propagate = False
+        formatter
+
+    )
+
+
+
+    console_handler = logging.StreamHandler()
+
+
+    console_handler.setFormatter(
+
+        formatter
+
+    )
+
+
+
+    logger.addHandler(
+
+        file_handler
+
+    )
+
+
+    logger.addHandler(
+
+        console_handler
+
+    )
+
 
     return logger
 
 
 
-
 class Logger:
 
-    def __init__(self, log_dir):
 
-        Path(log_dir).mkdir(parents=True, exist_ok=True)
+    def __init__(
 
-        self.logger = logging.getLogger("F5Dub")
+            self,
 
-        self.logger.setLevel(logging.INFO)
+            log_dir="logs"
 
-        if self.logger.handlers:
-            return
+    ):
 
-        fmt = logging.Formatter(
-            "%(asctime)s | %(levelname)s | %(message)s"
+
+        self.logger = create_logger(
+
+            log_dir
+
         )
 
-        file_handler = logging.FileHandler(
-            Path(log_dir) / "dubber.log",
-            encoding="utf8"
+
+    def info(
+
+            self,
+
+            text
+
+    ):
+
+        self.logger.info(
+
+            text
+
         )
 
-        file_handler.setFormatter(fmt)
 
-        console = logging.StreamHandler()
+    def warning(
 
-        console.setFormatter(fmt)
+            self,
 
-        self.logger.addHandler(file_handler)
+            text
 
-        self.logger.addHandler(console)
+    ):
 
-    def info(self, txt):
-        self.logger.info(txt)
+        self.logger.warning(
 
-    def warning(self, txt):
-        self.logger.warning(txt)
+            text
 
-    def error(self, txt):
-        self.logger.error(txt)
+        )
+
+
+    def error(
+
+            self,
+
+            text
+
+    ):
+
+        self.logger.error(
+
+            text
+
+        )
+
+
+    def debug(
+
+            self,
+
+            text
+
+    ):
+
+        self.logger.debug(
+
+            text
+
+        )

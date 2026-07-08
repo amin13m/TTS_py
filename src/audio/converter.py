@@ -1,48 +1,134 @@
+from pathlib import Path
 import subprocess
-from pathlib import Path
-
-
-from pathlib import Path
-from pydub import AudioSegment
-
-
-def wav_to_mp3(
-
-        wav,
-
-        mp3,
-
-        bitrate="192k"
-
-):
-
-    audio = AudioSegment.from_wav(wav)
-
-    audio.export(
-
-        mp3,
-
-        format="mp3",
-
-        bitrate=bitrate
-
-    )
-
-    return mp3
-
-
-
-
-
+import shutil
 
 
 
 
 class Converter:
 
-    def __init__(self, ffmpeg="ffmpeg"):
+
+
+    def __init__(
+
+            self,
+
+            ffmpeg="ffmpeg"
+
+    ):
 
         self.ffmpeg = ffmpeg
+
+
+
+
+
+
+    def wav_to_wav(
+
+            self,
+
+            wav,
+
+            output
+
+    ):
+
+
+        wav = Path(wav)
+
+        output = Path(output)
+
+
+
+        if not wav.exists():
+
+            raise FileNotFoundError(
+
+                f"WAV file not found: {wav}"
+
+            )
+
+
+
+        output.parent.mkdir(
+
+            parents=True,
+
+            exist_ok=True
+
+        )
+
+
+
+        cmd = [
+
+            self.ffmpeg,
+
+            "-y",
+
+            "-i",
+
+            str(wav),
+
+            "-ar",
+
+            "24000",
+
+            "-ac",
+
+            "1",
+
+            "-c:a",
+
+            "pcm_s16le",
+
+            str(output)
+
+        ]
+
+
+
+        try:
+
+
+            subprocess.run(
+
+                cmd,
+
+                check=True,
+
+                stdout=subprocess.PIPE,
+
+                stderr=subprocess.PIPE,
+
+                text=True
+
+            )
+
+
+        except subprocess.CalledProcessError as e:
+
+
+            raise RuntimeError(
+
+                "WAV conversion failed:\n"
+
+                +
+
+                e.stderr
+
+            )
+
+
+
+        return str(output)
+
+
+
+
+
+
 
     def wav_to_mp3(
 
@@ -56,13 +142,33 @@ class Converter:
 
     ):
 
-        Path(mp3).parent.mkdir(
+
+
+        wav = Path(wav)
+
+        mp3 = Path(mp3)
+
+
+
+        if not wav.exists():
+
+            raise FileNotFoundError(
+
+                f"WAV file not found: {wav}"
+
+            )
+
+
+
+        mp3.parent.mkdir(
 
             parents=True,
 
             exist_ok=True
 
         )
+
+
 
         cmd = [
 
@@ -82,18 +188,145 @@ class Converter:
 
             bitrate,
 
+            "-ar",
+
+            "24000",
+
+            "-ac",
+
+            "1",
+
             str(mp3)
 
         ]
 
-        subprocess.run(
 
-            cmd,
 
-            check=True,
+        try:
 
-            stdout=subprocess.DEVNULL,
 
-            stderr=subprocess.DEVNULL
+            subprocess.run(
+
+                cmd,
+
+                check=True,
+
+                stdout=subprocess.PIPE,
+
+                stderr=subprocess.PIPE,
+
+                text=True
+
+            )
+
+
+        except subprocess.CalledProcessError as e:
+
+
+            raise RuntimeError(
+
+                "MP3 conversion failed:\n"
+
+                +
+
+                e.stderr
+
+            )
+
+
+
+        return str(mp3)
+
+
+
+
+
+
+
+
+
+def convert_audio(
+
+        wav,
+
+        output,
+
+        audio_format="mp3",
+
+        bitrate="192k"
+
+):
+
+
+    audio_format = audio_format.lower()
+
+
+
+    converter = Converter()
+
+
+
+    if audio_format == "wav":
+
+
+        return converter.wav_to_wav(
+
+            wav,
+
+            output
 
         )
+
+
+
+    if audio_format == "mp3":
+
+
+        return converter.wav_to_mp3(
+
+            wav,
+
+            output,
+
+            bitrate
+
+        )
+
+
+
+    raise ValueError(
+
+        f"Unsupported audio format: {audio_format}"
+
+    )
+
+
+
+
+
+
+
+def wav_to_mp3(
+
+        wav,
+
+        mp3,
+
+        bitrate="192k"
+
+):
+
+
+    converter = Converter()
+
+
+
+    return converter.wav_to_mp3(
+
+        wav,
+
+        mp3,
+
+        bitrate
+
+    )

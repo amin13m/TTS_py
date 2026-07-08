@@ -1,90 +1,140 @@
+from pathlib import Path
 import json
 
-from pathlib import Path
-
-from src.models.episode import (
-    Episode,
-    Section
-)
+from src.models.episode import Episode
+from src.models.section import Section
 
 
 class JsonQueue:
 
 
-    def __init__(self, folder):
+    def __init__(self, input_folder):
 
-        self.folder = Path(folder)
+        self.input_folder = Path(input_folder)
+
+        self.input_folder.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
 
 
     def get_files(self):
 
         return sorted(
-            self.folder.glob("*.json")
+            self.input_folder.glob("*.json"),
+            key=lambda p: p.name.lower()
         )
+
 
 
     def load_episode(self, file):
 
-        data = json.loads(
+        file = Path(file)
 
-            file.read_text(
 
-                encoding="utf8"
+        try:
 
+            with open(
+                file,
+                "r",
+                encoding="utf-8"
+            ) as f:
+
+                data = json.load(f)
+
+
+        except Exception as e:
+
+            raise RuntimeError(
+                f"Cannot read JSON:\n{file}\n{e}"
             )
+
+
+
+        episode_id = data.get(
+            "episode_id",
+            file.stem
+        )
+
+
+
+        sections_data = data.get(
+            "sections",
+            []
+        )
+
+
+
+        episode = Episode(
+
+            episode_id=episode_id,
+
+            total_sections=len(
+                sections_data
+            ),
+
+            sections=[]
 
         )
 
 
-        sections=[]
+
+        for item in sections_data:
 
 
-        for item in data["sections"]:
+            text = (
 
-            sections.append(
+                item.get("text")
 
-                Section(
+                or
 
-                    index=item["index"],
+                item.get("persian")
 
-                    text=item["persian"],
+                or
 
-                    english=item.get(
-                        "english",
-                        ""
-                    ),
+                item.get("english")
 
-                    audio_url=item.get(
-                        "audioUrl",
-                        ""
+                or
+
+                ""
+
+            )
+
+
+            section = Section(
+
+                index=int(
+                    item.get(
+                        "index",
+                        len(episode.sections)+1
                     )
+                ),
 
+                text=text,
+
+                start=item.get(
+                    "start",
+                    0
+                ),
+
+                end=item.get(
+                    "end",
+                    0
                 )
 
             )
 
 
-        filename=data["metadata"]["fileName"]
-
-
-        episode_id = (
-
-            filename
-
-            .replace(
-                ".srt",
-                ""
+            episode.sections.append(
+                section
             )
 
+
+
+        episode.sections.sort(
+            key=lambda x: x.index
         )
 
 
-        return Episode(
-
-            episode_id=episode_id,
-
-            sections=sections,
-
-            total_sections=len(sections)
-
-        )
+        return episode

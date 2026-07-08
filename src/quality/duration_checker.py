@@ -1,57 +1,71 @@
-import math
-
-
 class DurationChecker:
 
-
     def __init__(
-            self,
-            min_ratio=0.65,
-            max_ratio=1.8
+
+        self,
+
+        min_ratio=0.55,
+
+        max_ratio=2.20,
+
+        words_per_minute=135
+
     ):
 
-        self.min_ratio=min_ratio
+        self.min_ratio = min_ratio
 
-        self.max_ratio=max_ratio
+        self.max_ratio = max_ratio
 
+        self.words_per_minute = words_per_minute
 
 
     def estimate_duration(
-            self,
-            text,
-            words_per_minute=130
+
+        self,
+
+        text
+
     ):
 
-        words=len(
+        words = len(
+
             text.split()
+
         )
 
+        if words == 0:
 
-        minutes=words / words_per_minute
-
-
-        return minutes * 60
-
-
-
-    def check(
-            self,
-            text,
-            duration
-    ):
-
-        expected=self.estimate_duration(text)
-
-
-        ratio=duration / expected
-
+            return 0.1
 
         return (
 
-            self.min_ratio
+            words /
 
-            <= ratio
+            self.words_per_minute
 
-            <= self.max_ratio
+        ) * 60
+
+
+    def check(
+
+        self,
+
+        text,
+
+        duration
+
+    ):
+
+        expected = self.estimate_duration(
+
+            text
+
+        )
+
+        ratio = duration / expected
+
+        return (
+
+            self.min_ratio <= ratio <= self.max_ratio
 
         )

@@ -1,9 +1,5 @@
 from pathlib import Path
 
-from src.core.queue import JsonQueue
-from src.core.section_processor import SectionProcessor
-from src.core.checkpoint import Checkpoint
-
 
 
 class Dubber:
@@ -13,19 +9,82 @@ class Dubber:
 
             self,
 
-            processor: SectionProcessor,
+            processor,
 
-            checkpoint: Checkpoint,
+            checkpoint,
 
-            logger
+            logger,
+
+            output_folder="output",
+
+            audio_format="mp3"
 
     ):
+
 
         self.processor = processor
 
         self.checkpoint = checkpoint
 
         self.logger = logger
+
+
+
+        self.output_folder = Path(
+
+            output_folder
+
+        )
+
+
+
+        self.audio_format = audio_format.lower()
+
+
+
+        self.output_folder.mkdir(
+
+            parents=True,
+
+            exist_ok=True
+
+        )
+
+
+
+
+
+
+
+    def expected_output(
+
+            self,
+
+            episode_id,
+
+            section_index
+
+    ):
+
+
+
+        return (
+
+            self.output_folder /
+
+            f"{episode_id}_"
+
+            f"Dub_"
+
+            f"{section_index:04}."
+
+            f"{self.audio_format}"
+
+        )
+
+
+
+
 
 
 
@@ -38,23 +97,42 @@ class Dubber:
     ):
 
 
+
         self.logger.info(
 
-            f"Start episode: "
-
-            f"{episode.episode_id}"
+            "=" * 70
 
         )
 
 
-        state=self.checkpoint.load(
+
+        self.logger.info(
+
+            f"Episode : {episode.episode_id}"
+
+        )
+
+
+
+        self.logger.info(
+
+            "=" * 70
+
+        )
+
+
+
+
+
+        state = self.checkpoint.load(
 
             episode.episode_id
 
         )
 
 
-        completed=state.get(
+
+        completed = state.get(
 
             "completed",
 
@@ -64,47 +142,41 @@ class Dubber:
 
 
 
-        outputs=[]
+        outputs = []
 
 
 
-        for section in episode.sections:
+        total = len(
 
+            episode.sections
 
-            if section.index in completed:
-
-
-                self.logger.info(
-
-                    f"Skip section "
-
-                    f"{section.index}"
-
-                )
-
-                continue
+        )
 
 
 
-            result=self.processor.process(
-
-                episode,
-
-                section,
-
-                None
-
-            )
 
 
-            outputs.append(
+        for index, section in enumerate(
 
-                result
+                episode.sections,
+
+                start=1
+
+        ):
+
+
+
+            self.logger.info(
+
+                f"[{index}/{total}] "
+
+                f"Section {section.index}"
 
             )
 
 
-            self.checkpoint.mark_done(
+
+            output_file = self.expected_output(
 
                 episode.episode_id,
 
@@ -114,13 +186,135 @@ class Dubber:
 
 
 
+
+
+            if output_file.exists():
+
+
+
+                self.logger.info(
+
+                    "Output already exists."
+
+                )
+
+
+
+                outputs.append(
+
+                    str(output_file)
+
+                )
+
+
+
+                if section.index not in completed:
+
+
+                    self.checkpoint.mark_done(
+
+                        episode.episode_id,
+
+                        section.index
+
+                    )
+
+
+
+                continue
+
+
+
+
+
+            if section.index in completed:
+
+
+
+                self.logger.warning(
+
+                    "Checkpoint exists but output missing. Regenerating."
+
+                )
+
+
+
+            try:
+
+
+
+                result = self.processor.process(
+
+                    episode,
+
+                    section,
+
+                    None
+
+                )
+
+
+
+                outputs.append(
+
+                    result
+
+                )
+
+
+
+                self.checkpoint.mark_done(
+
+                    episode.episode_id,
+
+                    section.index,
+                    result
+                )
+
+
+
+
+
+            except Exception as e:
+
+
+
+                self.logger.exception(
+
+                    f"Section {section.index} failed: {e}"
+
+                )
+
+
+
+                continue
+
+
+
+
+
         self.logger.info(
 
-            f"Episode finished "
-
-            f"{episode.episode_id}"
+            "=" * 70
 
         )
+
+
+
+        self.logger.info(
+
+            f"Episode Finished : {episode.episode_id}"
+
+        )
+
+
+
+        self.logger.info(
+
+            "=" * 70
+
+        )
+
 
 
         return outputs
