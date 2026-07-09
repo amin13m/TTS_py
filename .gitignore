@@ -4,6 +4,7 @@ __pycache__/
 
 # Virtual environment
 f5env/
+indextts_env/
 
 # Environment variables
 .env

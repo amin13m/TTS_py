@@ -12,7 +12,7 @@ project:
 
 tts:
 
-  engine: xtts
+  engine: vits_fa
 
   device: cuda
 
@@ -25,6 +25,12 @@ tts:
 
   models:
 
+    vits_fa:
+
+      model_path: models/persian_vits/model.pth
+
+      config_path: models/persian_vits/config.json
+
     f5:
 
       model: F5TTS_v1_Base
@@ -32,7 +38,7 @@ tts:
 
     xtts:
 
-      model_path: models/xtts_v2
+      model_path: models/parsvoice_xtts
 
 
 

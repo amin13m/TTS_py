@@ -1,11 +1,13 @@
 {
   "completed": [
     1,
-    2
+    2,
+    3
   ],
   "outputs": {
     "1": "D:\\Projects\\tts_py\\output\\Ep1_Dub_0001.wav",
-    "2": "D:\\Projects\\tts_py\\output\\Ep1_Dub_0002.wav"
+    "2": "D:\\Projects\\tts_py\\output\\Ep1_Dub_0002.wav",
+    "3": "D:\\Projects\\tts_py\\output\\Ep1_Dub_0003.wav"
   },
-  "updated": "2026-07-08T13:01:05.532729"
+  "updated": "2026-07-09T07:47:22.513587"
 }

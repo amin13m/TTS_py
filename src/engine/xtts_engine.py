@@ -70,10 +70,22 @@ class XTTSEngine(BaseEngine):
 
         self.xtts_config = XttsConfig()
 
-        self.xtts_config.load_json(
-            str(config_file)
-        )
-
+        if not config_file.exists():
+            raise FileNotFoundError(
+                f"Missing XTTS config: {config_file}"
+            )
+        
+        
+        if not vocab_file.exists():
+            raise FileNotFoundError(
+                f"Missing XTTS vocab: {vocab_file}"
+            )
+        
+        
+        if not (model_dir / "model.pth").exists():
+            raise FileNotFoundError(
+                f"Missing XTTS checkpoint: {model_dir}"
+            )
 
         self.model = Xtts.init_from_config(
             self.xtts_config
