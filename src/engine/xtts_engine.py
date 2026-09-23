@@ -2,7 +2,7 @@ from pathlib import Path
 import gc
 
 import torch
-import torchaudio
+import soundfile as sf
 
 from TTS.tts.configs.xtts_config import XttsConfig
 from TTS.tts.models.xtts import Xtts
@@ -46,50 +46,46 @@ class XTTSEngine(BaseEngine):
         model_dir = root / model_path
 
 
-        if not model_dir.exists():
-            raise FileNotFoundError(
-                f"XTTS model folder not found: {model_dir}"
-            )
+        print("Loading XTTS config...")
 
 
         config_file = model_dir / "config.json"
         vocab_file = model_dir / "vocab.json"
+        model_file = model_dir / "model.pth"
+
 
 
         if not config_file.exists():
-            raise FileNotFoundError(
-                f"Missing XTTS config: {config_file}"
-            )
+            raise FileNotFoundError(config_file)
 
 
         if not vocab_file.exists():
-            raise FileNotFoundError(
-                f"Missing XTTS vocab: {vocab_file}"
-            )
+            raise FileNotFoundError(vocab_file)
+
+
+        if not model_file.exists():
+            raise FileNotFoundError(model_file)
+
 
 
         self.xtts_config = XttsConfig()
 
-        if not config_file.exists():
-            raise FileNotFoundError(
-                f"Missing XTTS config: {config_file}"
-            )
-        
-        
-        if not vocab_file.exists():
-            raise FileNotFoundError(
-                f"Missing XTTS vocab: {vocab_file}"
-            )
-        
-        
-        if not (model_dir / "model.pth").exists():
-            raise FileNotFoundError(
-                f"Missing XTTS checkpoint: {model_dir}"
-            )
+        self.xtts_config.load_json(
+            str(config_file)
+        )
+
+
+
+        print("Initializing XTTS...")
+
 
         self.model = Xtts.init_from_config(
             self.xtts_config
         )
+
+
+
+        print("Loading checkpoint...")
 
 
         self.model.load_checkpoint(
@@ -105,9 +101,14 @@ class XTTSEngine(BaseEngine):
             self.model.cuda()
 
 
+
+        self.model.eval()
+
+
+        print("XTTS loaded successfully")
+
+
         self.loaded = True
-
-
 
 
     def unload(self):
@@ -147,6 +148,7 @@ class XTTSEngine(BaseEngine):
             audio = root / audio
 
 
+
         if not audio.exists():
 
             raise FileNotFoundError(
@@ -154,7 +156,15 @@ class XTTSEngine(BaseEngine):
             )
 
 
+
         voice.ref_audio = str(audio)
+
+
+
+        print(
+            f"Preparing XTTS voice: {audio}"
+        )
+
 
 
         super().prepare_voice(
@@ -162,14 +172,31 @@ class XTTSEngine(BaseEngine):
         )
 
 
-        (
-            self.gpt_cond_latent,
-            self.speaker_embedding
-        ) = self.model.get_conditioning_latents(
-            audio_path=self.voice.ref_audio
+
+        with torch.no_grad():
+
+
+            (
+                self.gpt_cond_latent,
+                self.speaker_embedding
+
+            ) = self.model.get_conditioning_latents(
+
+                audio_path=str(audio),
+
+                gpt_cond_len=30,
+
+                max_ref_length=30,
+
+                sound_norm_refs=False
+
+            )
+
+
+
+        print(
+            "Voice embedding ready"
         )
-
-
 
 
 
@@ -181,16 +208,21 @@ class XTTSEngine(BaseEngine):
     ):
 
 
+
         if not self.loaded:
+
             raise RuntimeError(
                 "XTTS model not loaded"
             )
 
 
+
         if self.voice is None:
+
             raise RuntimeError(
                 "Voice not selected"
             )
+
 
 
         if speed is None:
@@ -202,70 +234,97 @@ class XTTSEngine(BaseEngine):
         language = self.voice.language
 
 
-        # XTTS فارسی را قبول نمی‌کند
-        # فعلاً برای تست از انگلیسی استفاده می‌کنیم
+
+        # XTTS v2 supported languages
+        # Persian is not officially supported
+
         if language == "fa":
 
             language = "en"
 
 
 
-        result = self.model.inference(
-
-            text=text,
-
-            language=language,
-
-            gpt_cond_latent=self.gpt_cond_latent,
-
-            speaker_embedding=self.speaker_embedding,
-
-
-            temperature=getattr(
-                self.voice,
-                "temperature",
-                0.7
-            ),
-
-
-            repetition_penalty=getattr(
-                self.voice,
-                "repetition_penalty",
-                2.0
-            ),
-
-
-            top_k=getattr(
-                self.voice,
-                "top_k",
-                50
-            ),
-
-
-            top_p=getattr(
-                self.voice,
-                "top_p",
-                0.85
-            ),
-
-
-            speed=speed
+        print(
+            f"XTTS generating ({language}): {text[:80]}"
         )
 
 
 
-        wav = torch.tensor(
-            result["wav"]
-        ).unsqueeze(0)
+        with torch.no_grad():
+
+
+            result = self.model.inference(
+
+                text=text,
+
+                language=language,
+
+
+                gpt_cond_latent=self.gpt_cond_latent,
+
+
+                speaker_embedding=self.speaker_embedding,
 
 
 
-        torchaudio.save(
+                temperature=getattr(
+                    self.voice,
+                    "temperature",
+                    0.75
+                ),
+
+
+                repetition_penalty=getattr(
+                    self.voice,
+                    "repetition_penalty",
+                    5.0
+                ),
+
+
+                top_k=getattr(
+                    self.voice,
+                    "top_k",
+                    50
+                ),
+
+
+                top_p=getattr(
+                    self.voice,
+                    "top_p",
+                    0.85
+                ),
+
+
+                speed=speed
+
+            )
+
+            
+        wav = result["wav"]
+
+
+        # تبدیل خروجی XTTS به numpy
+
+        if isinstance(wav, torch.Tensor):
+
+            wav = wav.detach().cpu().numpy()
+
+
+
+        # ذخیره مستقیم بدون TorchCodec
+
+        sf.write(
 
             output_file,
 
-            wav.cpu(),
+            wav,
 
-            24000
+            24000,
+
+            subtype="PCM_16"
 
         )
+
+
+
+        return output_file

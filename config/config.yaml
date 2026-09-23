@@ -38,7 +38,7 @@ tts:
 
     xtts:
 
-      model_path: models/parsvoice_xtts
+      model_path: models/xtts_v2
 
 
     mana:
